@@ -7,11 +7,10 @@ from datetime import datetime
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:@localhost/ecommerce_api'
 
-
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
-# DATABASE MODELS
+# Database models 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
@@ -36,7 +35,7 @@ class OrderProduct(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
     __table_args__ = (UniqueConstraint('order_id', 'product_id', name='uix_order_product'),)
 
-# SCHEMAS
+# Schemas
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
@@ -143,7 +142,7 @@ def create_order():
 @app.route('/orders/<int:order_id>/add_product/<int:product_id>', methods=['PUT'])
 def add_product_to_order(order_id, product_id):
     if OrderProduct.query.filter_by(order_id=order_id, product_id=product_id).first():
-        return jsonify({'message': 'Product is already in your order, yay!'}), 400
+        return jsonify({'message': 'Product is already in your order, yay!'}), 400 #ensures no duplicates 
     db.session.add(OrderProduct(order_id=order_id, product_id=product_id))
     db.session.commit()
     return jsonify({'message': 'Product added, yay!'})
