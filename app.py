@@ -7,7 +7,7 @@ from datetime import datetime
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:@localhost/ecommerce_api'
 
-# Initialize extensions
+
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
@@ -21,7 +21,7 @@ class User(db.Model):
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    order_date = db.Column(db.DateTime, default=datetime.utcnow)
+    order_date = db.Column(db.DateTime, default=lambda: datetime.now(datetime.timezone.utc))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     products = db.relationship('Product', secondary='order_product', backref='orders')
 
@@ -143,10 +143,10 @@ def create_order():
 @app.route('/orders/<int:order_id>/add_product/<int:product_id>', methods=['PUT'])
 def add_product_to_order(order_id, product_id):
     if OrderProduct.query.filter_by(order_id=order_id, product_id=product_id).first():
-        return jsonify({'message': 'Product already in order'}), 400
+        return jsonify({'message': 'Product is already in your order, yay!'}), 400
     db.session.add(OrderProduct(order_id=order_id, product_id=product_id))
     db.session.commit()
-    return jsonify({'message': 'Product added'})
+    return jsonify({'message': 'Product added, yay!'})
 
 @app.route('/orders/<int:order_id>/remove_product', methods=['DELETE'])
 def remove_product_from_order(order_id):
@@ -155,7 +155,7 @@ def remove_product_from_order(order_id):
     association = OrderProduct.query.filter_by(order_id=order_id, product_id=product_id).first_or_404()
     db.session.delete(association)
     db.session.commit()
-    return jsonify({'message': 'Product removed'})
+    return jsonify({'message': 'Product removed successfully!'})
 
 @app.route('/orders/user/<int:user_id>', methods=['GET'])
 def get_orders_by_user(user_id):
