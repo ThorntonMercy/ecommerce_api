@@ -29,7 +29,7 @@ class Product(db.Model):
     product_name = db.Column(db.String(100))
     price = db.Column(db.Float)
 
-class OrderProduct(db.Model):
+class OrderProduct(db.Model): # Association table for many-to-many Product <-> Orders 
     __tablename__ = 'order_product'
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
